@@ -1,12 +1,6 @@
 name: cicd-Lara-dev
 on:
-  push:
-    branches:
-      - cicd
-    paths:
-      - 'PG.LARA.ValidationSummaryReport.WebJob/**'
-      - 'PG.LARA.GenerateValidationSummary.WebJob/**'
-      - 'PG.LARA.GeneratesJDATemplates.WebJob/**'
+  workflow_dispatch:
 env:
   AZURE_WEBAPP_NAME: "as-laraeunp"
   SOLUTION_FILE: "PG.LARA.sln"
