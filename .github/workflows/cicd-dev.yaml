@@ -1,0 +1,63 @@
+name: cicd-Lara-dev
+
+on:
+  push:
+    branches:
+      - CICD
+    paths:
+      - 'PG.LARA.ValidationSummaryReport.WebJob/**'
+      - 'PG.LARA.GenerateValidationSummary.WebJob/**'
+      - 'PG.LARA.GeneratesJDATemplates.WebJob/**'
+env:
+  AZURE_WEBAPP_NAME: "as-laraeunp"
+  SOLUTION_FILE: "PG.LARA.sln"
+
+jobs:
+  build-validation:
+    runs-on: windows-latest
+    if: contains(github.event.head_commit.modified, 'PG.LARA.ValidationSummaryReport.WebJob/')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+      - name: Restore NuGet Packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+      - name: Build Validation Summary Report
+        run: |
+          echo "Building Validation Summary Report..."
+          msbuild PG.LARA.ValidationSummaryReport.WebJob/PG.LARA.NotifyMetadataValidation.WebJob.csproj `
+            /p:DeployOnBuild=true `
+            /p:OutputPath=./publish/App_Data/jobs/Triggered/DEV-NotifyMetadataValidation
+  build-summary:
+    runs-on: windows-latest
+    if: contains(github.event.head_commit.modified, 'PG.LARA.GenerateValidationSummary.WebJob/')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+      - name: Restore NuGet Packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+      - name: Build Generate Validation Summary
+        run: |
+          echo "Building Generate Validation Summary..."
+          msbuild PG.LARA.GenerateValidationSummary.WebJob/PG.LARA.GenerateValidationSummary.WebJob.csproj `
+            /p:DeployOnBuild=true `
+            /p:OutputPath=./publish/App_Data/jobs/Triggered/DEV-GenerateValidationSummary
+  build-templates:
+    runs-on: windows-latest
+    if: contains(github.event.head_commit.modified, 'PG.LARA.GeneratesJDATemplates.WebJob/')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+      - name: Restore NuGet Packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+      - name: Build Generate TMS Output Templates
+        run: |
+          echo "Building Generate TMS Output Templates..."
+          msbuild PG.LARA.GeneratesJDATemplates.WebJob/PG.LARA.GenerateTMSOutputTemplates.WebJob.csproj `
+            /p:DeployOnBuild=true `
+            /p:OutputPath=./publish/App_Data/jobs/Triggered/DEV-GenerateTMSOutputTemplates 
