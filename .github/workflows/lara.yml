@@ -27,11 +27,6 @@ jobs:
           CHANGED_FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
           echo "Changed files: $CHANGED_FILES"
           
-          # Initialize flags
-          VALIDATION="false"
-          SUMMARY="false"
-          TEMPLATES="false"
-          
           # Check for changes in each specific directory
           if echo "$CHANGED_FILES" | grep -q "PG.LARA.ValidationSummaryReport.WebJob"; then
             VALIDATION="true"
