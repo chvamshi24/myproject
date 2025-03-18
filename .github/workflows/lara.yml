@@ -1,0 +1,109 @@
+name: cicd-Lara-dev
+
+on:
+  push:
+    branches:
+      - cicd
+
+env:
+  AZURE_WEBAPP_NAME: "as-laraeunp"
+  SOLUTION_FILE: "PG.LARA.sln"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      validation: ${{ steps.detect.outputs.validation }}
+      summary: ${{ steps.detect.outputs.summary }}
+      templates: ${{ steps.detect.outputs.templates }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Detect Changes
+        id: detect
+        run: |
+          # Get the list of changed files between the last commit and the current commit
+          CHANGED_FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
+          echo "Changed files: $CHANGED_FILES"
+          
+          # Initialize flags
+          VALIDATION="false"
+          SUMMARY="false"
+          TEMPLATES="false"
+          
+          # Check for changes in each specific directory
+          if echo "$CHANGED_FILES" | grep -q "PG.LARA.ValidationSummaryReport.WebJob"; then
+            VALIDATION="true"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "PG.LARA.GenerateValidationSummary.WebJob"; then
+            SUMMARY="true"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "PG.LARA.GeneratesJDATemplates.WebJob"; then
+            TEMPLATES="true"
+          fi
+          
+          # Set outputs so downstream jobs can use these values
+          echo "::set-output name=validation::$VALIDATION"
+          echo "::set-output name=summary::$SUMMARY"
+          echo "::set-output name=templates::$TEMPLATES"
+
+  build-validation:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.validation == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+
+      - name: Restore NuGet Packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build Validation WebJob
+        run: |
+          msbuild PG.LARA.ValidationSummaryReport.WebJob/PG.LARA.NotifyMetadataValidation.WebJob.csproj `
+            /p:DeployOnBuild=true `
+            /p:OutputPath=./publish/App_Data/jobs/Triggered/DEV-NotifyMetadataValidation
+
+  build-summary:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.summary == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+
+      - name: Restore NuGet Packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build Summary WebJob
+        run: |
+          msbuild PG.LARA.GenerateValidationSummary.WebJob/PG.LARA.GenerateValidationSummary.WebJob.csproj `
+            /p:DeployOnBuild=true `
+            /p:OutputPath=./publish/App_Data/jobs/Triggered/DEV-GenerateValidationSummary
+
+  build-templates:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.templates == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+
+      - name: Restore NuGet Packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build Templates WebJob
+        run: |
+          msbuild PG.LARA.GeneratesJDATemplates.WebJob/PG.LARA.GenerateTMSOutputTemplates.WebJob.csproj `
+            /p:DeployOnBuild=true `
+            /p:OutputPath=./publish/App_Data/jobs/Triggered/DEV-GenerateTMSOutputTemplates
