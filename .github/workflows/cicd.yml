@@ -17,16 +17,9 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-         include:
-          - path: PG.LARA.ValidationSummaryReport.WebJob
-            name: NotifyMetadataValidation
-            type: Triggered
-          - path: PG.LARA.GenerateValidationSummary.WebJob
-            name: GenerateValidationSummary
-            type: Triggered
-          - path: PG.LARA.GeneratesJDATemplates.WebJob
-            name: GenerateTMSOutputTemplates
-            type: Triggered
+         webjob-path: ['PG.LARA.ValidationSummaryReport.WebJob', 'PG.LARA.GenerateValidationSummary.WebJob', 'PG.LARA.GeneratesJDATemplates.WebJob']
+         webjob-name: ['NotifyMetadataValidation', 'GenerateValidationSummary', 'GenerateTMSOutputTemplates']
+         webjob-type: ['Triggered', 'Triggered', 'Triggered']
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -34,8 +27,8 @@ jobs:
         uses: NuGet/setup-nuget@v1
       - name: Restore NuGet Packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
-      - name: Build Application (${{ matrix.include.name }})
+      - name: Build Application (${{ matrix.webjob-name }})
         run: |
-          msbuild ${{ matrix.include.path }}/PG.LARA.${{ matrix.include.name }}.WebJob.csproj `
+          msbuild ${{ matrix.webjob-path }}/PG.LARA.${{ matrix.webjob-name }}.WebJob.csproj `
             /p:DeployOnBuild=true `
-            /p:OutputPath=./publish/App_Data/jobs/${{ matrix.include.type }}/DEV-${{ matrix.include.name }}}
+            /p:OutputPath=./publish/App_Data/jobs/${{ matrix.webjob-type }}/DEV-${{ matrix.webjob-name }}}
