@@ -13,7 +13,7 @@ env:
 jobs:
   build-and-deploy:
     # Dynamically set the job name based on the application name
-    name: ${{ matrix.webjob.name }}
+    name: ${{ matrix.webjob-name }}
     runs-on: windows-latest
     strategy:
       matrix:
