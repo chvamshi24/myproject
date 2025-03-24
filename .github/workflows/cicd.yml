@@ -7,18 +7,27 @@ env:
 jobs:
   build-and-deploy:
     # Dynamically set the job name based on the application name
-    name: ${{ matrix.webjob-name }}
+    name: ${{ matrix.name }}
     runs-on: windows-latest
     strategy:
       matrix:
-         webjob-path: ['PG.LARA.ValidationSummaryReport.WebJob', 'PG.LARA.GenerateValidationSummary.WebJob', 'PG.LARA.GeneratesJDATemplates.WebJob']
-         webjob-name: ['NotifyMetadataValidation', 'GenerateValidationSummary', 'GenerateTMSOutputTemplates']
-         webjob-type: ['Triggered', 'Triggered', 'Triggered']
+        include:
+          - { path: PG.LARA.ValidationSummaryReport.WebJob, name: NotifyMetadataValidation, type: Triggered }
+          - { path: PG.LARA.GenerateValidationSummary.WebJob, name: GenerateValidationSummary, type: Triggered }
+          - { path: PG.LARA.GeneratesJDATemplates.WebJob, name: GenerateTMSOutputTemplates, type: Triggered }
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
+      - name: Create Publish Directories
+        run: |
+          mkdir -p ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
+        shell: pwsh
+      - name: Compress WebJob Files
+        run: |
+          Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
+            -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
       - name: Restore NuGet Packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
       - name: Build Application (${{ matrix.webjob-name }})
