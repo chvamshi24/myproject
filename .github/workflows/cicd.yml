@@ -32,7 +32,7 @@ jobs:
         run: |
           Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
             -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
-          dir .\publish\App_Data\jobs\${{ matrix.type }}
+          dir .\publish\App_Data\jobs\${{ matrix.type }}\\DEV-${{ matrix.name }}
           dir .\publish\App_Data\jobs\${{ matrix.type }}
         shell: pwsh
       - name: Restore NuGet Packages
