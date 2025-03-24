@@ -34,7 +34,6 @@ jobs:
             -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
           dir .\publish\App_Data\jobs\${{ matrix.type }}\\DEV-${{ matrix.name }}
           dir .\publish\App_Data\jobs\${{ matrix.type }}
-        shell: pwsh
       - name: Restore NuGet Packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
       - name: Build Application (${{ matrix.webjob-name }})
