@@ -26,11 +26,13 @@ jobs:
       - name: Create Publish Directories
         run: |
           mkdir -p ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
+          Copy-Item -Path ".\*" -Destination ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}" -Recurse -Force
         shell: pwsh
       - name: Compress WebJob Files
         run: |
           Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
             -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
+          dir .\publish\App_Data\jobs\${{ matrix.type }}
           dir .\publish\App_Data\jobs\${{ matrix.type }}
         shell: pwsh
       - name: Restore NuGet Packages
