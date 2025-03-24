@@ -1,4 +1,4 @@
-name: cicd-Lara-dev
+name: cicd-dev
 on:
   workflow_dispatch:
 env:
