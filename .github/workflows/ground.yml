@@ -1,0 +1,55 @@
+name: lara-cicd-dev
+on:
+  push:
+    branches:
+      - CICD
+env:
+  AZURE_WEBAPP_NAME: "as-laraeunp"
+  BUILD_CONFIGURATION: "Release"
+  SOLUTION_FILE: "PG.LARA.sln"
+jobs:
+ build-deploy:
+    # Dynamically set the job name based on the application name
+    name: ${{ matrix.name }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - { path: PG.LARA.ValidationSummaryReport.WebJob, name: NotifyMetadataValidation, type: Triggered }
+          - { path: PG.LARA.GenerateValidationSummary.WebJob, name: GenerateValidationSummary, type: Triggered }
+          - { path: PG.LARA.GeneratesJDATemplates.WebJob, name: GenerateTMSOutputTemplates, type: Triggered }
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Install .NET Framework 4.6.1 Developer Pack
+        run: |
+          choco install netfx-4.6.1-devpack -y
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+      # - name: Restore NuGet Packages
+      #   run: nuget restore ${{ env.SOLUTION_FILE }}
+      - name: Create Publish Directories
+        run: |
+         mkdir -p "${{ github.workspace }}\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
+         echo "github workspace = ${{ github.workspace }}"
+        shell: pwsh
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
+      # - name: Build Application (${{ matrix.name }})
+      #   run: |
+      #     msbuild ${{ matrix.path }}/PG.LARA.${{ matrix.name }}.WebJob.csproj `
+      #       /p:Configuration=${{ env.BUILD_CONFIGURATION }} `
+      #       /p:DeployOnBuild=true `
+      #       /p:OutDir=".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
+      - name: Compress WebJob Files
+        run: |
+          dir ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }}
+          Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
+            -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
+          dir ./publish/App_Data/jobs/${{ matrix.type }}      
+      - name: Deploy Application to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_DEV }}
+          package: .\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip
