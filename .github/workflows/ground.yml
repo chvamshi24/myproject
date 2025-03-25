@@ -50,9 +50,9 @@ jobs:
           Get-ChildItem ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }} -Recurse
       - name: Compress WebJob Files
         run: |
-          Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
-            -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
-          dir ./publish/App_Data/jobs/${{ matrix.type }}      
+          Compress-Archive -Path ".\publish\App_Data\*" `
+            -DestinationPath ".\publish\DEV-${{ matrix.name }}.zip"
+          dir ./publish     
       # - name: Deploy Application to Azure Web App
       #   uses: azure/webapps-deploy@v3
       #   with:
