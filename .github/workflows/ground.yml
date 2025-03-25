@@ -43,7 +43,7 @@ jobs:
       #       /p:OutDir=".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
       - name: Compress WebJob Files
         run: |
-          dir ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }}
+          Get-ChildItem ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }}
           Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
             -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
           dir ./publish/App_Data/jobs/${{ matrix.type }}      
