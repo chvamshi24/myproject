@@ -32,7 +32,7 @@ jobs:
         run: |
           Compress-Archive -Path ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}/*" `
             -DestinationPath ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}.zip"
-          dir .\publish\App_Data\jobs\${{ matrix.type }}\\DEV-${{ matrix.name }}
+          dir .\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}
           dir .\publish\App_Data\jobs\${{ matrix.type }}
       - name: Restore NuGet Packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
