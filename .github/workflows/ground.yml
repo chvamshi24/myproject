@@ -52,7 +52,12 @@ jobs:
         run: |
           Compress-Archive -Path ".\publish\App_Data\*" `
             -DestinationPath ".\publish\DEV-${{ matrix.name }}.zip"
-          dir ./publish     
+          dir ./publish
+      - name: Extract WebJob Files
+        run: |
+           Expand-Archive -Path ".\publish\DEV-${{ matrix.name }}.zip" -DestinationPath ".\publish\extracted"
+           dir .\publish\extracted
+        shell: pwsh
       # - name: Deploy Application to Azure Web App
       #   uses: azure/webapps-deploy@v3
       #   with:
