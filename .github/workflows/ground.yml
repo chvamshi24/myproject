@@ -41,6 +41,9 @@ jobs:
       #       /p:Configuration=${{ env.BUILD_CONFIGURATION }} `
       #       /p:DeployOnBuild=true `
       #       /p:OutDir=".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
+      - name: Verify Directory Contents
+        run: |
+          Get-ChildItem ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }} -Recurse
       - name: Compress WebJob Files
         run: |
           Get-ChildItem ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }}
