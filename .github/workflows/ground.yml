@@ -35,6 +35,9 @@ jobs:
         shell: pwsh
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.3.1
+      - name: copy
+        run: |
+          Copy-Item -Path ".\PG*" -Destination ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}" -Recurse -Force
       # - name: Build Application (${{ matrix.name }})
       #   run: |
       #     msbuild ${{ matrix.path }}/PG.LARA.${{ matrix.name }}.WebJob.csproj `
