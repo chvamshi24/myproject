@@ -2,7 +2,7 @@ name: lara-cicd-dev
 on:
   push:
     branches:
-      - CICD
+      - cicd
 env:
   AZURE_WEBAPP_NAME: "as-laraeunp"
   BUILD_CONFIGURATION: "Release"
