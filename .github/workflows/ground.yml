@@ -45,8 +45,6 @@ jobs:
       #       /p:DeployOnBuild=true `
       #       /p:OutDir=".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
 
-      - name: Wait for Directory Creation
-        run: Start-Sleep -Seconds 5
       - name: Verify Directory Contents
         run: |
           Get-ChildItem ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }} -Recurse
