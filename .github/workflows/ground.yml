@@ -30,14 +30,14 @@ jobs:
       #   run: nuget restore ${{ env.SOLUTION_FILE }}
       - name: Create Publish Directories
         run: |
-         mkdir -p "${{ github.workspace }}\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}"
+         mkdir -p "${{ github.workspace }}\publish\DEV-${{ matrix.name }}"
          echo "github workspace = ${{ github.workspace }}"
         shell: pwsh
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.3.1
       - name: copy
         run: |
-          Copy-Item -Path ".\PG*" -Destination ".\publish\App_Data\jobs\${{ matrix.type }}\DEV-${{ matrix.name }}" -Recurse -Force
+          Copy-Item -Path ".\PG*" -Destination ".\publish\DEV-${{ matrix.name }}" -Recurse -Force
       # - name: Build Application (${{ matrix.name }})
       #   run: |
       #     msbuild ${{ matrix.path }}/PG.LARA.${{ matrix.name }}.WebJob.csproj `
@@ -47,10 +47,10 @@ jobs:
 
       - name: Verify Directory Contents
         run: |
-          Get-ChildItem ./publish/App_Data/jobs/${{ matrix.type }}/DEV-${{ matrix.name }} -Recurse
+          Get-ChildItem ./publish/DEV-${{ matrix.name }} -Recurse
       - name: Compress WebJob Files
         run: |
-          Compress-Archive -Path ".\publish\App_Data\*" `
+          Compress-Archive -Path ".\publish\DEV-${{ matrix.name }}\*" `
             -DestinationPath ".\publish\DEV-${{ matrix.name }}.zip"
           dir ./publish
       - name: Extract WebJob Files
